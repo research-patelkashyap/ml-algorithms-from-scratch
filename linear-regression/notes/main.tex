@@ -1,0 +1,58 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath, amssymb}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\title{Linear Regression with Gradient Descent and Regularization}
+\author{Kashyap Sureshchandra Patel}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{algorithm}[H]
+\caption{Linear Regression with Gradient Descent and Regularization}
+\KwIn{Learning rate $\eta$, number of epochs $T$, batch size $b$, 
+regularization flag $r$, regularization method $m \in \{\text{L1, L2, ElasticNet}\}$,
+regularization strength $\lambda$, mixing parameter $\alpha$}
+\KwOut{Optimal parameter vector $\theta$}
+
+\BlankLine
+\textbf{Initialize:} $\theta \gets \mathbf{0}$ \\
+Add bias column of ones to $X$: $X_b = [\mathbf{1}, X]$ \\
+$n \gets$ number of samples, $d \gets$ number of features (including bias)
+
+\BlankLine
+\For{epoch $= 1$ to $T$}{
+    Shuffle dataset $(X_b, y)$ randomly \\
+    \For{each mini-batch $(X_{\text{batch}}, y_{\text{batch}})$ of size $b$}{
+        $y_{\text{pred}} \gets X_{\text{batch}} \cdot \theta$ \\
+        Gradient: $\nabla J(\theta) \gets \frac{2}{b} X_{\text{batch}}^\top (y_{\text{pred}} - y_{\text{batch}})$ \\
+        
+        \If{$r = \text{True}$}{
+            $\theta_{\text{reg}} \gets \theta$, set $\theta_{\text{reg},0} \gets 0$ \\
+            \uIf{$m = \text{L1}$}{
+                $\nabla J(\theta) \gets \nabla J(\theta) + \lambda \cdot \text{sign}(\theta_{\text{reg}})$
+            }
+            \uElseIf{$m = \text{L2}$}{
+                $\nabla J(\theta) \gets \nabla J(\theta) + 2 \lambda \cdot \theta_{\text{reg}}$
+            }
+            \uElseIf{$m = \text{ElasticNet}$}{
+                $\nabla J(\theta) \gets \nabla J(\theta) + 
+                \lambda \Big( \alpha \cdot \text{sign}(\theta_{\text{reg}})
+                + 2(1-\alpha) \cdot \theta_{\text{reg}} \Big)$
+            }
+        }
+        
+        Update step: $\theta \gets \theta - \eta \cdot \nabla J(\theta)$
+    }
+    
+    \If{epoch $\bmod 100 = 0$}{
+        Compute training MSE: 
+        $ \text{MSE} = \frac{1}{n} \sum_{i=1}^n (y^{(i)} - X_b^{(i)} \theta)^2 $ \\
+        Print epoch and MSE
+    }
+}
+\end{algorithm}
+
+\end{document}
